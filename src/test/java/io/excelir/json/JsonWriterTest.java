@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 class JsonWriterTest {
 
     @Test
@@ -23,9 +26,11 @@ class JsonWriterTest {
 
         String json = JsonWriter.write(doc);
 
-        assertTrue(json.contains("\"schemaVersion\":1"));
-        assertTrue(json.contains("\"name\":\"Calibri\""));
-        assertTrue(json.contains("\"ref\":\"A1\""));
-        assertTrue(json.contains("\"formatted\":\"标题\""));
+        ObjectMapper m = new ObjectMapper();
+        JsonNode root = m.readTree(json);
+        assertEquals(1, root.get("schemaVersion").asInt());
+        assertEquals("Calibri", root.get("workbook").get("styles").get("fonts").get(0).get("name").asText());
+        assertEquals("A1", root.get("sheets").get(0).get("cells").get(0).get("ref").asText());
+        assertEquals("标题", root.get("sheets").get(0).get("cells").get(0).get("formatted").asText());
     }
 }

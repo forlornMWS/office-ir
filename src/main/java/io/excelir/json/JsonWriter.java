@@ -12,9 +12,7 @@ public class JsonWriter {
 
     public static String write(IrDocument doc) {
         try {
-            String json = MAPPER.writeValueAsString(doc);
-            // Remove spaces around colons to match compact format
-            return json.replaceAll(" : ", ":");
+            return MAPPER.writeValueAsString(doc);
         } catch (IOException e) {
             throw new RuntimeException("JSON 序列化失败", e);
         }

@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
 import org.apache.poi.xssf.usermodel.extensions.XSSFCellFill;
 import org.apache.poi.xssf.model.StylesTable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,17 @@ public final class StyleTableExtractor {
         }
 
         List<CellXfIr> xfs = new ArrayList<>();
-        for (int i = 0; i < wb.getNumCellStyles(); i++) {
-            CellStyle cs = wb.getCellStyleAt(i);
-            xfs.add(toCellXfIr("S" + i, cs, st));
+        for (int i = 0; i < st.getNumCellStyles(); i++) {
+            XSSFCellStyle cs = st.getStyleAt(i);
+            CTXf ct = cs.getCoreXf();
+            long fillId = ct.getFillId();
+            long borderId = ct.getBorderId();
+            long fontId = ct.getFontId();
+            xfs.add(new CellXfIr("S" + i, "F" + fontId, "FL" + fillId, "B" + borderId,
+                    cs.getAlignment().name().toLowerCase(),
+                    cs.getVerticalAlignment().name().toLowerCase(),
+                    cs.getWrapText(), cs.getRotation(), cs.getIndention(),
+                    cs.getDataFormatString(), cs.getLocked(), cs.getHidden()));
         }
         return new StyleTable(fonts, fillList, borderList, xfs);
     }
@@ -81,17 +90,4 @@ public final class StyleTableExtractor {
         return new BorderIr.Edge(s.name().toLowerCase(), c == null ? null : c.getARGBHex());
     }
 
-    private static CellXfIr toCellXfIr(String id, CellStyle cs, StylesTable st) {
-        String fontId = "F" + cs.getFontIndex();
-        // fill/border 索引近似 — Task 11 会通过 CTXf 精确化
-        int fillIdx = cs.getFillForegroundColor();
-        String fill = fillIdx >= 0 ? "FL" + fillIdx : null;
-        String border = "B0";
-        return new CellXfIr(id, fontId, fill, border,
-                cs.getAlignment().name().toLowerCase(),
-                cs.getVerticalAlignment().name().toLowerCase(),
-                cs.getWrapText(), cs.getRotation(), cs.getIndention(),
-                cs.getDataFormatString(),
-                cs.getLocked(), cs.getHidden());
-    }
 }

@@ -38,7 +38,8 @@ public final class FixtureBuilder {
             numStyle.setDataFormat(fmt.getFormat("#,##0.00"));
             b2.setCellStyle(numStyle);
 
-            Cell c3 = row1.createCell(2);
+            Row row2 = sheet.createRow(2);
+            Cell c3 = row2.createCell(2);
             c3.setCellFormula("SUM(B2:B2)");
             c3.setCellStyle(headerStyle);
 

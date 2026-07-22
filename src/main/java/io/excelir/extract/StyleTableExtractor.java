@@ -73,7 +73,9 @@ public final class StyleTableExtractor {
 
     private static FillIr toFillIr(String id, XSSFCellFill f) {
         String pattern = f.getPatternType() == null ? "none" : f.getPatternType().toString().toLowerCase();
-        String fg = f.getFillBackgroundColor() != null ? f.getFillBackgroundColor().getARGBHex() : null;
+        // 实心填充(solid)的可见色存在 fgColor/前景色,POI 的 getFillForegroundColor() 读它;
+        // getFillBackgroundColor() 读的是底色,对实心填充常为 null。字段语义为 fgColor,故用前景色。
+        String fg = f.getFillForegroundColor() != null ? f.getFillForegroundColor().getARGBHex() : null;
         return new FillIr(id, pattern, fg);
     }
 

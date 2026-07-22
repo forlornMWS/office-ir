@@ -16,8 +16,7 @@ public final class CellExtractor {
         if (t == CellType.FORMULA) {
             type = "f";
             formula = cell.getCellFormula();
-            CellType cached = cell.getCachedFormulaResultType();
-            raw = rawValue(cell, cached);
+            raw = cachedRaw(cell);
         } else {
             type = typeName(t);
             raw = rawValue(cell, t);
@@ -46,5 +45,27 @@ public final class CellExtractor {
             case ERROR -> cell.getErrorCellValue();
             default -> null;
         };
+    }
+
+    private static Object cachedRaw(Cell cell) {
+        boolean hasCached = false;
+        if (cell instanceof org.apache.poi.xssf.usermodel.XSSFCell xc) {
+            hasCached = xc.getCTCell().isSetV();
+        } else {
+            hasCached = true; // non-XSSF: assume present, fall back to reading
+        }
+        if (!hasCached) return null;
+        CellType cached = cell.getCachedFormulaResultType();
+        try {
+            return switch (cached) {
+                case NUMERIC -> cell.getNumericCellValue();
+                case STRING  -> cell.getStringCellValue();
+                case BOOLEAN -> cell.getBooleanCellValue();
+                case ERROR   -> cell.getErrorCellValue();
+                default      -> null;
+            };
+        } catch (RuntimeException ex) {
+            return null;
+        }
     }
 }

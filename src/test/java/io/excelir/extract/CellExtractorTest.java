@@ -35,6 +35,7 @@ class CellExtractorTest {
             assertEquals("C3", fml.ref());
             assertEquals("f", fml.type());
             assertEquals("SUM(B2:B2)", fml.formula());
+            assertNull(fml.raw(), "unevaluated formula 应无 raw 值");
         }
     }
 }

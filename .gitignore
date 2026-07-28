@@ -1,4 +1,12 @@
 target/
 *.class
 out.media/
-settings.xml
+settings.json
+dist/
+out.json
+sample.docx
+*.docx
+.claude/
+.codebuddy/
+.idea/
+*.iml
